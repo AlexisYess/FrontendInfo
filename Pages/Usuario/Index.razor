@@ -1,0 +1,58 @@
+﻿@page "/usuario/index"
+@inject HttpClient httpClient
+
+@inject NavigationManager NavigationManager
+
+<MudText Typo="Typo.h2" Class="ml">Usuarios</MudText>
+
+<MudTable Items="@usuarios" Hover="true" Bordered="true" Striped="true">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Lista de Registros</MudText>
+        <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="goAdd" />
+        <MudSpacer />
+        <MudTextField @bind-Value="searchText" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Id</MudTh>
+        <MudTh>Nombre</MudTh>
+        <MudTh>IdRol</MudTh>
+        <MudTh>Correo</MudTh>
+        <MudTh>Contraseña</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Id">@context.Id</MudTd>
+        <MudTd DataLabel="Nombre">@context.Nombre</MudTd>
+        <MudTd DataLabel="Nombre">@context.IdRol</MudTd>
+        <MudTd DataLabel="Correo">@context.Correo</MudTd>
+        <MudTd DataLabel="Contraseña">@context.Contraseña</MudTd>
+        <MudTd>
+            <MudButton Link="@($"/usuario/editar/{context.Id}")" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Tertiary"
+                       Class="text-center">Editar</MudButton>
+            <MudButton Link="@($"/usuario/eliminar/{context.Id}")" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Warning"
+                       Class="text-center">Eliminar</MudButton>
+        </MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable>
+
+@code {
+    private IEnumerable<Usuario> usuarios = new List<Usuario>();
+    private string searchText = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await getAll();
+    }
+
+    private async Task getAll()
+    {
+        var httpResponse = await httpClient.GetStringAsync("usuario");
+        usuarios = JsonSerializer.Deserialize<IEnumerable<Usuario>>(httpResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+    }
+    private void goAdd()
+    {
+        NavigationManager.NavigateTo("/usuario/agregar");
+    }
+}

@@ -1,0 +1,64 @@
+﻿@page "/rol/agregar"
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@inject ILocalStorageService _localStorageService
+
+<MudText Typo="Typo.h2" Class="ml">Nueva Rol</MudText>
+
+<MudGrid>
+    <MudItem xs="12" sm="7">
+        <MudPaper Class="pa-4">
+            <EditForm Model="rol" OnValidSubmit="OnValidSubmit">
+                s
+                <DataAnnotationsValidator />
+                <MudCard>
+                    <MudCardContent>
+                        <MudTextField Label="Nombre" @bind-Value="rol.Nombre" For="@(() => rol.Nombre)" />
+                        <MudTextField Label="Nombre" @bind-Value="rol.Descripcion" For="@(() => rol.Descripcion)" />
+                    </MudCardContent>
+                    <MudCardActions>
+                        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Guardar</MudButton>
+                    </MudCardActions>
+                </MudCard>
+            </EditForm>
+            @if (showLeaveAlert)
+            {
+                <MudAlert Severity="Severity.Error" ContentAlignment="HorizontalAlignment.Center" ShowCloseIcon="true" CloseIconClicked="(() => CloseMe(true))">No se pudo guardar.</MudAlert>
+            }
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code {
+    bool success;
+    private bool showLeaveAlert = false;
+    Rol rol = new Rol();
+
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        await save();
+        success = true;
+        StateHasChanged();
+    }
+
+    private async Task save()
+    {
+
+        var httpResponse = await Http.PostAsJsonAsync<Rol>("rol", rol);
+
+        if (!(httpResponse.StatusCode == System.Net.HttpStatusCode.OK))
+        {
+            showLeaveAlert = true;
+        }
+        else
+        {
+            NavigationManager.NavigateTo("/rol/index");
+        }
+    }
+
+    private void CloseMe(bool value)
+    {
+        showLeaveAlert = false;
+    }
+}
